@@ -598,22 +598,44 @@ endfunction
 
 function! lightline#bufferline#delete_buffers_except_first()
   let l:buffers = s:filtered_buffers()
-  let l:current = index(l:buffers, bufnr('%'))
-  if l:current != 0
+  let l:current_index = index(l:buffers, bufnr('%'))
+  if l:current_index != 0
     " go to the first buffer before deleting
     call s:goto_nth_buffer(0)
   endif
-  " delete buffers from 2 to the end of the buffers
-  for _ in range(len(l:buffers))
-    " the next of the current buffer always 2 after flushed
-    call lightline#bufferline#delete(2)
-  endfor
+  call lightline#bufferline#delete_buffers_after_current()
 endfunction
 
 function! lightline#bufferline#delete_buffers_except_current()
-  " move the current buffer to the first
-  call lightline#bufferline#move_first()
-  call lightline#bufferline#delete_buffers_except_first()
+  call lightline#bufferline#delete_buffers_before_current()
+  call lightline#bufferline#delete_buffers_after_current()
+endfunction
+
+function! lightline#bufferline#delete_buffers_after_current()
+  let l:buffers = s:filtered_buffers()
+  " get current index
+  let l:current_index = index(l:buffers, bufnr('%'))
+  " the ordinal number of current buffer is l:current_index + 1
+  let l:buffer_after_current = l:current_index + 2
+  for _ in range(l:current_index, len(l:buffers))
+    call lightline#bufferline#delete(l:buffer_after_current)
+  endfor
+endfunction
+
+function! lightline#bufferline#delete_buffers_before_current()
+  let l:buffers = s:filtered_buffers()
+  " get current index
+  let l:current_index = index(l:buffers, bufnr('%'))
+  for _ in range(len(l:buffers))
+    if l:current_index <= 0
+      return
+    endif
+    " the l:current_index is the ordinal number of the buffer before the current
+    let l:buffer_before_current = l:current_index
+    call lightline#bufferline#delete(l:buffer_before_current)
+    " the buffer index is shifted to the left
+    let l:current_index -= 1
+  endfor
 endfunction
 
 function! lightline#bufferline#get_ordinal_number_for_buffer(buffer)

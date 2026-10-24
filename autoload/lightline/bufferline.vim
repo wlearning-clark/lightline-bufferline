@@ -592,6 +592,22 @@ endfunction
 
 function! lightline#bufferline#delete(n)
   call s:delete_nth_buffer(a:n - 1)
+  "flush the buffers
+  call s:force_update()
+endfunction
+
+function! lightline#bufferline#delete_buffers_except_first()
+  " delete buffers from 2 to the end of the buffers
+  let l:buffers = s:filtered_buffers()
+  for _ in range(len(l:buffers))
+    call lightline#bufferline#delete(2)
+  endfor
+endfunction
+
+function! lightline#bufferline#delete_buffers_except_current()
+  " move the current buffer to the first
+  call lightline#bufferline#move_first()
+  call lightline#bufferline#delete_buffers_except_first()
 endfunction
 
 function! lightline#bufferline#get_ordinal_number_for_buffer(buffer)

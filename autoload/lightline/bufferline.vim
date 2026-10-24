@@ -597,9 +597,15 @@ function! lightline#bufferline#delete(n)
 endfunction
 
 function! lightline#bufferline#delete_buffers_except_first()
-  " delete buffers from 2 to the end of the buffers
   let l:buffers = s:filtered_buffers()
+  let l:current = index(l:buffers, bufnr('%'))
+  if l:current != 0
+    " go to the first buffer before deleting
+    call s:goto_nth_buffer(0)
+  endif
+  " delete buffers from 2 to the end of the buffers
   for _ in range(len(l:buffers))
+    " the next of the current buffer always 2 after flushed
     call lightline#bufferline#delete(2)
   endfor
 endfunction
